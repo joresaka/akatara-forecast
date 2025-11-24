@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import {
   BarChart2,
   ShoppingCart,
@@ -16,16 +16,16 @@ import {
   Trash2,
   Search,
   CalendarDays,
-} from 'lucide-react';
-import logo from '../assets/logo.png';
+} from "lucide-react";
+import logo from "../assets/logo.png";
 
 export default function DataPenjualan() {
   const [data, setData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  
+  const [searchTerm, setSearchTerm] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+
   const [showDateFilterModal, setShowDateFilterModal] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showPredictionDropdown, setShowPredictionDropdown] = useState(false);
@@ -36,21 +36,23 @@ export default function DataPenjualan() {
   const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [form, setForm] = useState({
-    tanggal: '',
-    kodeBarang: '',
-    namaBarang: '',
-    jumlah: '',
-    total: '',
+    tanggal: "",
+    kodeBarang: "",
+    namaBarang: "",
+    jumlah: "",
+    total: "",
   });
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
   const [showNotification, setShowNotification] = useState(false);
 
   const navigate = useNavigate();
-  const userName = 'MINKA';
+  const userName = "MINKA";
 
   const fetchData = async () => {
     try {
-      const res = await axios.get("https://akataraforecast.pythonanywhere.com/api/penjualan");
+      const res = await axios.get(
+        "https://akataraforecast.pythonanywhere.com/api/penjualan"
+      );
       setData(res.data);
       setFilteredData(res.data);
     } catch (error) {
@@ -63,15 +65,15 @@ export default function DataPenjualan() {
     fetchData();
     const resize = () => setSidebarOpen(window.innerWidth >= 768);
     resize();
-    window.addEventListener('resize', resize);
-    return () => window.removeEventListener('resize', resize);
+    window.addEventListener("resize", resize);
+    return () => window.removeEventListener("resize", resize);
   }, []);
 
   useEffect(() => {
     let result = data;
 
     if (startDate && endDate) {
-      result = result.filter(item => {
+      result = result.filter((item) => {
         const itemDate = new Date(item.tanggal);
         const start = new Date(startDate);
         const end = new Date(endDate);
@@ -80,15 +82,22 @@ export default function DataPenjualan() {
     }
 
     if (searchTerm) {
-      result = result.filter(item =>
-        item.kode_barang.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.nama_barang.toLowerCase().includes(searchTerm.toLowerCase())
+      result = result.filter(
+        (item) =>
+          item.kode_barang.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          item.nama_barang.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
     setFilteredData(result);
   }, [data, searchTerm, startDate, endDate]);
 
-  const handleLogout = () => navigate('/');
+  const handleLogout = () => {
+    // Hapus semua data login
+    localStorage.removeItem("loggedIn");
+
+    // Redirect ke halaman login
+    navigate("/");
+  };
 
   const showMessage = (msg) => {
     setMessage(msg);
@@ -100,22 +109,22 @@ export default function DataPenjualan() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    if (name === 'total') {
-      const raw = value.replace(/[^0-9]/g, '');
-      const formatted = new Intl.NumberFormat('id-ID', {
-        style: 'currency',
-        currency: 'IDR',
+    if (name === "total") {
+      const raw = value.replace(/[^0-9]/g, "");
+      const formatted = new Intl.NumberFormat("id-ID", {
+        style: "currency",
+        currency: "IDR",
         minimumFractionDigits: 0,
       }).format(raw);
-      setForm(prev => ({ ...prev, total: formatted }));
+      setForm((prev) => ({ ...prev, total: formatted }));
     } else {
-      setForm(prev => ({ ...prev, [name]: value }));
+      setForm((prev) => ({ ...prev, [name]: value }));
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const totalAngka = parseInt(form.total.replace(/[^0-9]/g, ''));
+    const totalAngka = parseInt(form.total.replace(/[^0-9]/g, ""));
 
     const payload = {
       tanggal: form.tanggal,
@@ -128,9 +137,15 @@ export default function DataPenjualan() {
     try {
       let res;
       if (isEdit) {
-        res = await axios.put(`https://akataraforecast.pythonanywhere.com/api/penjualan/${editId}`, payload);
+        res = await axios.put(
+          `https://akataraforecast.pythonanywhere.com/api/penjualan/${editId}`,
+          payload
+        );
       } else {
-        res = await axios.post("https://akataraforecast.pythonanywhere.com/api/penjualan", payload);
+        res = await axios.post(
+          "https://akataraforecast.pythonanywhere.com/api/penjualan",
+          payload
+        );
       }
       showMessage(res.data.message);
       fetchData();
@@ -139,7 +154,13 @@ export default function DataPenjualan() {
       showMessage("Gagal menyimpan data!");
     }
 
-    setForm({ tanggal: '', kodeBarang: '', namaBarang: '', jumlah: '', total: '' });
+    setForm({
+      tanggal: "",
+      kodeBarang: "",
+      namaBarang: "",
+      jumlah: "",
+      total: "",
+    });
     setShowModal(false);
     setIsEdit(false);
     setEditId(null);
@@ -151,9 +172,9 @@ export default function DataPenjualan() {
       kodeBarang: item.kode_barang,
       namaBarang: item.nama_barang,
       jumlah: item.jumlah,
-      total: new Intl.NumberFormat('id-ID', {
-        style: 'currency',
-        currency: 'IDR',
+      total: new Intl.NumberFormat("id-ID", {
+        style: "currency",
+        currency: "IDR",
         minimumFractionDigits: 0,
       }).format(item.total),
     });
@@ -163,9 +184,11 @@ export default function DataPenjualan() {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Apakah Anda yakin ingin menghapus data ini?')) {
+    if (window.confirm("Apakah Anda yakin ingin menghapus data ini?")) {
       try {
-        const res = await axios.delete(`https://akataraforecast.pythonanywhere.com/api/penjualan/${id}`);
+        const res = await axios.delete(
+          `https://akataraforecast.pythonanywhere.com/api/penjualan/${id}`
+        );
         showMessage(res.data.message);
         fetchData();
       } catch (error) {
@@ -192,11 +215,15 @@ export default function DataPenjualan() {
     formData.append("file", file);
 
     try {
-      const res = await axios.post("https://akataraforecast.pythonanywhere.com/api/upload-penjualan", formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
+      const res = await axios.post(
+        "https://akataraforecast.pythonanywhere.com/api/upload-penjualan",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         }
-      });
+      );
       showMessage(res.data.message);
       fetchData();
       setFile(null);
@@ -210,8 +237,8 @@ export default function DataPenjualan() {
   };
 
   const handleResetDateFilter = () => {
-    setStartDate('');
-    setEndDate('');
+    setStartDate("");
+    setEndDate("");
     setShowDateFilterModal(false);
   };
 
@@ -220,7 +247,9 @@ export default function DataPenjualan() {
       {/* Sidebar */}
       <div
         className={`fixed md:relative z-40 top-0 left-0 w-64 h-full bg-gray-100 text-blue-900 transition-transform flex flex-col justify-between 
-        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}
+        ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } md:translate-x-0`}
       >
         <div>
           <div className="flex flex-col items-center gap-2 p-6 border-b border-gray-300">
@@ -228,42 +257,60 @@ export default function DataPenjualan() {
             <span className="text-xl font-bold">{userName}</span>
           </div>
           <nav className="mt-4 px-4 flex flex-col gap-3">
-            <button onClick={() => navigate('/dashboard')} className="flex items-center gap-2 hover:bg-gray-200 px-3 py-2 rounded">
+            <button
+              onClick={() => navigate("/dashboard")}
+              className="flex items-center gap-2 hover:bg-gray-200 px-3 py-2 rounded"
+            >
               <BarChart2 size={18} /> Dashboard
             </button>
-            <button onClick={() => navigate('/data-barang')} className="flex items-center gap-2 hover:bg-gray-200 px-3 py-2 rounded">
+            <button
+              onClick={() => navigate("/data-barang")}
+              className="flex items-center gap-2 hover:bg-gray-200 px-3 py-2 rounded"
+            >
               <ShoppingCart size={18} /> Data Barang
             </button>
-            <button onClick={() => navigate('/penjualan')} className="flex items-center gap-2 px-3 py-2 rounded bg-gray-200 text-blue-900">
+            <button
+              onClick={() => navigate("/penjualan")}
+              className="flex items-center gap-2 px-3 py-2 rounded bg-gray-200 text-blue-900"
+            >
               <BarChart3Icon size={18} /> Data Penjualan
             </button>
             <div className="relative">
               <button
-                onClick={() => setShowPredictionDropdown(!showPredictionDropdown)}
+                onClick={() =>
+                  setShowPredictionDropdown(!showPredictionDropdown)
+                }
                 className="flex items-center justify-between w-full hover:bg-gray-200 px-3 py-2 rounded"
               >
                 <span className="flex items-center gap-2">
                   <IconLineChart size={18} /> Prediksi Permintaan
                 </span>
                 <svg
-                  className={`w-4 h-4 transition-transform ${showPredictionDropdown ? 'rotate-90' : ''}`}
+                  className={`w-4 h-4 transition-transform ${
+                    showPredictionDropdown ? "rotate-90" : ""
+                  }`}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5l7 7-7 7"
+                  />
                 </svg>
               </button>
               {showPredictionDropdown && (
                 <div className="ml-4 mt-2 flex flex-col gap-2 text-sm transition-all duration-300 ease-in-out">
                   <button
-                    onClick={() => navigate('/prediksi')}
+                    onClick={() => navigate("/prediksi")}
                     className="flex items-center gap-2 text-blue-800 hover:bg-gray-300 px-3 py-2 rounded"
                   >
                     <Brain size={16} /> Lakukan Prediksi
                   </button>
                   <button
-                    onClick={() => navigate('/hasil')}
+                    onClick={() => navigate("/hasil")}
                     className="flex items-center gap-2 text-blue-800 hover:bg-gray-300 px-3 py-2 rounded"
                   >
                     <PieChart size={16} /> Hasil Prediksi
@@ -285,7 +332,10 @@ export default function DataPenjualan() {
 
       {/* Backdrop */}
       {sidebarOpen && (
-        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-30 md:hidden" onClick={() => setSidebarOpen(false)} />
+        <div
+          className="fixed inset-0 bg-black/30 backdrop-blur-sm z-30 md:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
       )}
 
       {/* Main Content */}
@@ -299,7 +349,9 @@ export default function DataPenjualan() {
             >
               <Menu size={28} />
             </button>
-            <h1 className="text-xl font-bold uppercase tracking-wide">Data Penjualan</h1>
+            <h1 className="text-xl font-bold uppercase tracking-wide">
+              Data Penjualan
+            </h1>
           </div>
         </header>
 
@@ -307,12 +359,13 @@ export default function DataPenjualan() {
         <main className="p-6 bg-gray-50 flex-1 overflow-y-auto">
           <div className="bg-white p-6 rounded shadow">
             <div className="mb-6 border-b pb-4">
-              <h1 className="text-xl font-bold text-gray-700">Manajemen transaksi penjualan</h1>
+              <h1 className="text-xl font-bold text-gray-700">
+                Manajemen transaksi penjualan
+              </h1>
             </div>
 
             {/* ACTION & FILTER SECTION */}
             <div className="flex flex-col md:flex-row justify-between items-center mb-4 space-y-2 md:space-y-0 md:space-x-4">
-              
               {/* Searchbar */}
               <div className="relative w-full md:w-64">
                 <input
@@ -322,9 +375,12 @@ export default function DataPenjualan() {
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
-                <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <Search
+                  size={18}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                />
               </div>
-              
+
               {/* Buttons with flex-1 for uniform size */}
               <div className="flex items-center w-full md:w-auto space-x-2">
                 <button
@@ -333,14 +389,24 @@ export default function DataPenjualan() {
                 >
                   <CalendarDays size={16} /> Filter
                 </button>
-                <button 
-                  onClick={() => { setShowModal(true); setIsEdit(false); setForm({ tanggal: '', kodeBarang: '', namaBarang: '', jumlah: '', total: '' }); }} 
+                <button
+                  onClick={() => {
+                    setShowModal(true);
+                    setIsEdit(false);
+                    setForm({
+                      tanggal: "",
+                      kodeBarang: "",
+                      namaBarang: "",
+                      jumlah: "",
+                      total: "",
+                    });
+                  }}
                   className="flex-1 flex items-center justify-center gap-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 text-sm"
                 >
                   <Plus size={16} /> Tambah
                 </button>
-                <button 
-                  onClick={() => setShowUploadModal(true)} 
+                <button
+                  onClick={() => setShowUploadModal(true)}
                   className="flex-1 flex items-center justify-center gap-2 bg-emerald-500 text-white px-4 py-2 rounded text-sm hover:bg-emerald-600"
                 >
                   <Upload size={16} /> Import
@@ -371,18 +437,24 @@ export default function DataPenjualan() {
                       <td className="px-4 py-2 border">{item.nama_barang}</td>
                       <td className="px-4 py-2 border">{item.jumlah}</td>
                       <td className="px-4 py-2 border">
-                        {new Intl.NumberFormat('id-ID', {
-                          style: 'currency',
-                          currency: 'IDR',
+                        {new Intl.NumberFormat("id-ID", {
+                          style: "currency",
+                          currency: "IDR",
                           minimumFractionDigits: 0,
                         }).format(item.total)}
                       </td>
                       <td className="px-4 py-2 border">
                         <div className="flex gap-2 justify-center">
-                          <button onClick={() => handleEdit(item)} className="bg-yellow-400 text-white p-1 rounded-full hover:bg-yellow-500 transition-colors">
+                          <button
+                            onClick={() => handleEdit(item)}
+                            className="bg-yellow-400 text-white p-1 rounded-full hover:bg-yellow-500 transition-colors"
+                          >
                             <Edit2 size={14} />
                           </button>
-                          <button onClick={() => handleDelete(item.id)} className="bg-rose-500 text-white p-1 rounded-full hover:bg-rose-600 transition-colors">
+                          <button
+                            onClick={() => handleDelete(item.id)}
+                            className="bg-rose-500 text-white p-1 rounded-full hover:bg-rose-600 transition-colors"
+                          >
                             <Trash2 size={14} />
                           </button>
                         </div>
@@ -391,7 +463,10 @@ export default function DataPenjualan() {
                   ))}
                   {filteredData.length === 0 && (
                     <tr>
-                      <td colSpan={7} className="text-center py-4 text-gray-400">
+                      <td
+                        colSpan={7}
+                        className="text-center py-4 text-gray-400"
+                      >
                         Tidak ada data penjualan.
                       </td>
                     </tr>
@@ -407,16 +482,75 @@ export default function DataPenjualan() {
       {showModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white rounded p-6 w-full max-w-md shadow">
-            <h2 className="text-lg font-bold mb-4">{isEdit ? 'Edit' : 'Tambah'} Penjualan</h2>
+            <h2 className="text-lg font-bold mb-4">
+              {isEdit ? "Edit" : "Tambah"} Penjualan
+            </h2>
             <form onSubmit={handleSubmit} className="space-y-3">
-              <input name="tanggal" type="date" value={form.tanggal} onChange={handleInputChange} required className="w-full border px-3 py-2 rounded" />
-              <input name="kodeBarang" placeholder="Kode Barang" value={form.kodeBarang} onChange={handleInputChange} required className="w-full border px-3 py-2 rounded" />
-              <input name="namaBarang" placeholder="Nama Barang" value={form.namaBarang} onChange={handleInputChange} required className="w-full border px-3 py-2 rounded" />
-              <input name="jumlah" type="number" placeholder="Jumlah" value={form.jumlah} onChange={handleInputChange} required className="w-full border px-3 py-2 rounded" />
-              <input name="total" placeholder="Total (Rp)" value={form.total} onChange={handleInputChange} required className="w-full border px-3 py-2 rounded" />
+              <input
+                name="tanggal"
+                type="date"
+                value={form.tanggal}
+                onChange={handleInputChange}
+                required
+                className="w-full border px-3 py-2 rounded"
+              />
+              <input
+                name="kodeBarang"
+                placeholder="Kode Barang"
+                value={form.kodeBarang}
+                onChange={handleInputChange}
+                required
+                className="w-full border px-3 py-2 rounded"
+              />
+              <input
+                name="namaBarang"
+                placeholder="Nama Barang"
+                value={form.namaBarang}
+                onChange={handleInputChange}
+                required
+                className="w-full border px-3 py-2 rounded"
+              />
+              <input
+                name="jumlah"
+                type="number"
+                placeholder="Jumlah"
+                value={form.jumlah}
+                onChange={handleInputChange}
+                required
+                className="w-full border px-3 py-2 rounded"
+              />
+              <input
+                name="total"
+                placeholder="Total (Rp)"
+                value={form.total}
+                onChange={handleInputChange}
+                required
+                className="w-full border px-3 py-2 rounded"
+              />
               <div className="flex justify-end gap-2">
-                <button type="button" onClick={() => { setShowModal(false); setForm({ tanggal: '', kodeBarang: '', namaBarang: '', jumlah: '', total: '' }); setIsEdit(false); }} className="px-4 py-2 bg-gray-300 text-gray-800 rounded">Batal</button>
-                <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Simpan</button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowModal(false);
+                    setForm({
+                      tanggal: "",
+                      kodeBarang: "",
+                      namaBarang: "",
+                      jumlah: "",
+                      total: "",
+                    });
+                    setIsEdit(false);
+                  }}
+                  className="px-4 py-2 bg-gray-300 text-gray-800 rounded"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                >
+                  Simpan
+                </button>
               </div>
             </form>
           </div>
@@ -429,17 +563,17 @@ export default function DataPenjualan() {
           <div className="bg-white rounded p-6 w-full max-w-sm shadow">
             <h3 className="font-bold text-lg mb-4">Unggah File CSV/Excel</h3>
             <p className="mb-4 text-sm text-gray-600">
-              Pastikan file Anda memiliki kolom dengan nama: 
-              <code className="bg-gray-200 px-1 rounded mx-1">tanggal</code>, 
-              <code className="bg-gray-200 px-1 rounded mx-1">kodeBarang</code>, 
-              <code className="bg-gray-200 px-1 rounded mx-1">namaBarang</code>, 
+              Pastikan file Anda memiliki kolom dengan nama:
+              <code className="bg-gray-200 px-1 rounded mx-1">tanggal</code>,
+              <code className="bg-gray-200 px-1 rounded mx-1">kodeBarang</code>,
+              <code className="bg-gray-200 px-1 rounded mx-1">namaBarang</code>,
               <code className="bg-gray-200 px-1 rounded mx-1">jumlah</code>, dan
               <code className="bg-gray-200 px-1 rounded mx-1">total</code>.
             </p>
             <form onSubmit={handleUpload} className="space-y-4">
-              <input 
-                type="file" 
-                onChange={handleFileChange} 
+              <input
+                type="file"
+                onChange={handleFileChange}
                 accept=".csv, .xlsx"
                 className="w-full text-sm text-gray-500
                   file:mr-4 file:py-2 file:px-4
@@ -449,22 +583,26 @@ export default function DataPenjualan() {
                   hover:file:bg-blue-100"
               />
               <div className="flex justify-end gap-2">
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   onClick={() => {
                     setShowUploadModal(false);
                     setFile(null);
-                  }} 
+                  }}
                   className="px-4 py-2 rounded bg-gray-300 text-gray-800"
                 >
                   Batal
                 </button>
-                <button 
-                  type="submit" 
-                  disabled={!file || uploading} 
-                  className={`px-4 py-2 rounded text-white ${!file || uploading ? 'bg-blue-300 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
+                <button
+                  type="submit"
+                  disabled={!file || uploading}
+                  className={`px-4 py-2 rounded text-white ${
+                    !file || uploading
+                      ? "bg-blue-300 cursor-not-allowed"
+                      : "bg-blue-600 hover:bg-blue-700"
+                  }`}
                 >
-                  {uploading ? 'Mengunggah...' : 'Unggah'}
+                  {uploading ? "Mengunggah..." : "Unggah"}
                 </button>
               </div>
             </form>
@@ -478,14 +616,18 @@ export default function DataPenjualan() {
           <div className="bg-white rounded p-6 w-full max-w-xs shadow">
             <h3 className="font-bold text-lg mb-4">Pilih Rentang Tanggal</h3>
             <div className="space-y-3">
-              <label className="block text-sm font-medium text-gray-700">Tanggal Mulai:</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Tanggal Mulai:
+              </label>
               <input
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
                 className="w-full border px-3 py-2 rounded text-sm"
               />
-              <label className="block text-sm font-medium text-gray-700">Tanggal Akhir:</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Tanggal Akhir:
+              </label>
               <input
                 type="date"
                 value={endDate}
@@ -494,16 +636,16 @@ export default function DataPenjualan() {
               />
             </div>
             <div className="flex justify-end gap-2 mt-4">
-              <button 
-                type="button" 
-                onClick={handleResetDateFilter} 
+              <button
+                type="button"
+                onClick={handleResetDateFilter}
                 className="px-4 py-2 rounded bg-gray-300 text-gray-800 text-sm"
               >
                 Reset
               </button>
-              <button 
-                type="button" 
-                onClick={() => setShowDateFilterModal(false)} 
+              <button
+                type="button"
+                onClick={() => setShowDateFilterModal(false)}
                 className="px-4 py-2 rounded bg-blue-600 text-white text-sm hover:bg-blue-700"
               >
                 Terapkan
@@ -512,7 +654,7 @@ export default function DataPenjualan() {
           </div>
         </div>
       )}
-      
+
       {/* Notifikasi */}
       {showNotification && (
         <div className="fixed bottom-4 right-4 bg-gray-800 text-white px-4 py-2 rounded shadow-lg transition-transform transform translate-x-0">

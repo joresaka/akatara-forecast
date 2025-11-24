@@ -1,38 +1,37 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import backgroundImage from '../assets/1.jpg';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import backgroundImage from "../assets/1.jpg";
 
 const Login = () => {
-  // Menggunakan state username dan password
-  const [username, setUsername] = useState(''); 
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
     try {
-      // Kirim data login ke endpoint Flask Anda
-      const response = await axios.post('https://akataraforecast.pythonanywhere.com/api/login', {
-        username, // Gunakan state username
-        password,
-      });
+      const response = await axios.post(
+        "https://akataraforecast.pythonanywhere.com/api/login",
+        { username, password }
+      );
 
-      // Jika login berhasil, arahkan ke dashboard
       if (response.status === 200) {
         console.log(response.data.message);
-        navigate('/dashboard');
+
+        // Simpan status login
+        localStorage.setItem("loggedIn", "true");
+
+        navigate("/dashboard");
       }
     } catch (err) {
       if (err.response) {
-        // Tampilkan pesan error dari backend
         setError(err.response.data.message);
       } else {
-        // Tampilkan pesan error koneksi
-        setError('Terjadi kesalahan saat terhubung ke server.');
+        setError("Terjadi kesalahan saat terhubung ke server.");
       }
     }
   };
@@ -51,11 +50,12 @@ const Login = () => {
               type="text"
               className="w-full px-4 py-2 bg-transparent border border-white/30 rounded-md placeholder-white/70 text-white focus:outline-none focus:ring-2 focus:ring-white"
               placeholder="Username"
-              value={username} // Hubungkan input dengan state username
+              value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
             />
           </div>
+
           <div>
             <label className="block text-sm mb-1">Password</label>
             <input
@@ -67,7 +67,9 @@ const Login = () => {
               required
             />
           </div>
+
           {error && <p className="text-red-400 text-center">{error}</p>}
+
           <button
             type="submit"
             className="w-full bg-white text-black font-semibold py-2 rounded-md hover:bg-gray-200 transition"

@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import {
   BarChart2,
   ShoppingCart,
@@ -11,7 +11,7 @@ import {
   Brain,
   PieChart,
   BarChart3Icon,
-} from 'lucide-react';
+} from "lucide-react";
 import {
   LineChart,
   Line,
@@ -23,9 +23,9 @@ import {
   BarChart,
   Bar,
   Legend,
-  Cell
-} from 'recharts';
-import logo from '../assets/logo.png';
+  Cell,
+} from "recharts";
+import logo from "../assets/logo.png";
 
 export default function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -37,7 +37,7 @@ export default function Dashboard() {
   });
 
   const [barangList, setBarangList] = useState([]);
-  const [selectedBarang, setSelectedBarang] = useState('ALL');
+  const [selectedBarang, setSelectedBarang] = useState("ALL");
 
   // 🟡 Filter bulan dan tahun
   const [selectedMonth, setSelectedMonth] = useState("ALL");
@@ -48,22 +48,50 @@ export default function Dashboard() {
   const [showPredictionDropdown, setShowPredictionDropdown] = useState(false);
 
   const navigate = useNavigate();
-  const userName = 'MINKA';
+  const userName = "MINKA";
 
   // Palet warna batang
   const COLORS = [
-    '#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6','#ec4899','#14b8a6','#f97316',
-    '#22c55e','#6366f1','#eab308','#06b6d4','#fb7185','#4ade80','#a78bfa','#f87171',
-    '#fbbf24','#34d399','#60a5fa','#c084fc','#f472b6','#93c5fd','#fde047','#5eead4',
-    '#d946ef','#7dd3fc','#facc15','#2dd4bf','#fda4af','#4ade80','#818cf8','#fcd34d'
+    "#3b82f6",
+    "#10b981",
+    "#f59e0b",
+    "#ef4444",
+    "#8b5cf6",
+    "#ec4899",
+    "#14b8a6",
+    "#f97316",
+    "#22c55e",
+    "#6366f1",
+    "#eab308",
+    "#06b6d4",
+    "#fb7185",
+    "#4ade80",
+    "#a78bfa",
+    "#f87171",
+    "#fbbf24",
+    "#34d399",
+    "#60a5fa",
+    "#c084fc",
+    "#f472b6",
+    "#93c5fd",
+    "#fde047",
+    "#5eead4",
+    "#d946ef",
+    "#7dd3fc",
+    "#facc15",
+    "#2dd4bf",
+    "#fda4af",
+    "#4ade80",
+    "#818cf8",
+    "#fcd34d",
   ];
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const [penjualanRes, barangRes] = await Promise.all([
-          axios.get('https://akataraforecast.pythonanywhere.com/api/penjualan'),
-          axios.get('https://akataraforecast.pythonanywhere.com/api/barang'),
+          axios.get("https://akataraforecast.pythonanywhere.com/api/penjualan"),
+          axios.get("https://akataraforecast.pythonanywhere.com/api/barang"),
         ]);
 
         const penjualan = penjualanRes.data;
@@ -73,25 +101,31 @@ export default function Dashboard() {
         setPenjualanData(penjualan);
 
         // Ambil tahun unik dari data penjualan untuk dropdown filter
-        const years = [...new Set(penjualan.map(item => new Date(item.tanggal).getFullYear()))];
+        const years = [
+          ...new Set(
+            penjualan.map((item) => new Date(item.tanggal).getFullYear())
+          ),
+        ];
         setAvailableYears(years.sort((a, b) => b - a)); // descending
 
         // Ringkasan
         const totalBarang = barangData.length;
-        const totalJumlahPenjualan = penjualan.reduce((sum, item) => sum + item.jumlah, 0);
+        const totalJumlahPenjualan = penjualan.reduce(
+          (sum, item) => sum + item.jumlah,
+          0
+        );
         setSummaryData({
           totalBarang,
           totalPenjualan: totalJumlahPenjualan,
         });
 
         // Grafik Tren Semua Barang
-        updateTrend(penjualan, 'ALL');
+        updateTrend(penjualan, "ALL");
 
         // Hitung total penjualan per barang (default semua bulan dan tahun)
         updateBarData(penjualan, "ALL", "ALL", barangData);
-
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error("Error fetching data:", error);
       }
     };
 
@@ -99,24 +133,24 @@ export default function Dashboard() {
 
     const resize = () => setSidebarOpen(window.innerWidth >= 768);
     resize();
-    window.addEventListener('resize', resize);
-    return () => window.removeEventListener('resize', resize);
+    window.addEventListener("resize", resize);
+    return () => window.removeEventListener("resize", resize);
   }, []);
 
   // 🔵 Update data line chart trend bulanan
   const updateTrend = (penjualanData, kodeBarang) => {
     const trend = penjualanData.reduce((acc, curr) => {
-      if (kodeBarang !== 'ALL' && curr.kode_barang !== kodeBarang) return acc;
+      if (kodeBarang !== "ALL" && curr.kode_barang !== kodeBarang) return acc;
 
       const date = new Date(curr.tanggal);
-      const month = date.toLocaleString('default', { month: 'short' });
+      const month = date.toLocaleString("default", { month: "short" });
       const year = date.getFullYear();
       const key = `${month} ${year}`;
       acc[key] = (acc[key] || 0) + curr.jumlah;
       return acc;
     }, {});
 
-    const trendArray = Object.keys(trend).map(key => ({
+    const trendArray = Object.keys(trend).map((key) => ({
       bulan: key,
       penjualan: trend[key],
     }));
@@ -125,7 +159,12 @@ export default function Dashboard() {
   };
 
   // 🟠 Update data bar chart total per barang berdasarkan bulan & tahun
-  const updateBarData = (penjualan, bulan, tahun = selectedYear, barangDataList = barangList) => {
+  const updateBarData = (
+    penjualan,
+    bulan,
+    tahun = selectedYear,
+    barangDataList = barangList
+  ) => {
     let filtered = penjualan;
 
     if (bulan !== "ALL") {
@@ -158,10 +197,12 @@ export default function Dashboard() {
     setSelectedBarang(kode);
 
     try {
-      const penjualanRes = await axios.get('https://akataraforecast.pythonanywhere.com/api/penjualan');
+      const penjualanRes = await axios.get(
+        "https://akataraforecast.pythonanywhere.com/api/penjualan"
+      );
       updateTrend(penjualanRes.data, kode);
     } catch (err) {
-      console.error('Error fetching penjualan by barang:', err);
+      console.error("Error fetching penjualan by barang:", err);
     }
   };
 
@@ -177,7 +218,13 @@ export default function Dashboard() {
     updateBarData(penjualanData, selectedMonth, tahun);
   };
 
-  const handleLogout = () => navigate('/');
+  const handleLogout = () => {
+    // Hapus semua data login
+    localStorage.removeItem("loggedIn");
+
+    // Redirect ke halaman login
+    navigate("/");
+  };
 
   const currentPath = window.location.pathname;
 
@@ -186,7 +233,9 @@ export default function Dashboard() {
       {/* Sidebar */}
       <div
         className={`fixed md:relative z-40 top-0 left-0 w-64 h-full bg-gray-100 text-blue-900 transition-transform flex flex-col justify-between 
-        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}
+        ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } md:translate-x-0`}
       >
         <div>
           <div className="flex flex-col items-center gap-2 p-6 border-b border-gray-300">
@@ -194,54 +243,95 @@ export default function Dashboard() {
             <span className="text-xl font-bold">{userName}</span>
           </div>
           <nav className="mt-4 px-4 flex flex-col gap-3">
-            <button 
-              onClick={() => navigate('/dashboard')} 
-              className={`flex items-center gap-2 px-3 py-2 rounded transition-colors ${currentPath === '/dashboard' ? 'bg-gray-200 text-blue-800' : 'hover:bg-gray-200'}`}
+            <button
+              onClick={() => navigate("/dashboard")}
+              className={`flex items-center gap-2 px-3 py-2 rounded transition-colors ${
+                currentPath === "/dashboard"
+                  ? "bg-gray-200 text-blue-800"
+                  : "hover:bg-gray-200"
+              }`}
             >
               <BarChart2 size={18} /> Dashboard
             </button>
-            <button 
-              onClick={() => navigate('/data-barang')} 
-              className={`flex items-center gap-2 px-3 py-2 rounded transition-colors ${currentPath === '/data-barang' ? 'bg-blue-600 text-white' : 'hover:bg-gray-200'}`}
+            <button
+              onClick={() => navigate("/data-barang")}
+              className={`flex items-center gap-2 px-3 py-2 rounded transition-colors ${
+                currentPath === "/data-barang"
+                  ? "bg-blue-600 text-white"
+                  : "hover:bg-gray-200"
+              }`}
             >
               <ShoppingCart size={18} /> Data Barang
             </button>
-            <button 
-              onClick={() => navigate('/penjualan')} 
-              className={`flex items-center gap-2 px-3 py-2 rounded transition-colors ${currentPath === '/penjualan' ? 'bg-blue-600 text-white' : 'hover:bg-gray-200'}`}
+            <button
+              onClick={() => navigate("/penjualan")}
+              className={`flex items-center gap-2 px-3 py-2 rounded transition-colors ${
+                currentPath === "/penjualan"
+                  ? "bg-blue-600 text-white"
+                  : "hover:bg-gray-200"
+              }`}
             >
               <BarChart3Icon size={18} /> Data Penjualan
             </button>
-            
+
             {/* Dropdown Prediksi */}
             <div className="relative">
               <button
-                onClick={() => setShowPredictionDropdown(!showPredictionDropdown)}
-                className={`flex items-center justify-between w-full px-3 py-2 rounded transition-colors ${currentPath.startsWith('/prediksi') || currentPath.startsWith('/hasil') ? 'bg-blue-600 text-white' : 'hover:bg-gray-200'}`}
+                onClick={() =>
+                  setShowPredictionDropdown(!showPredictionDropdown)
+                }
+                className={`flex items-center justify-between w-full px-3 py-2 rounded transition-colors ${
+                  currentPath.startsWith("/prediksi") ||
+                  currentPath.startsWith("/hasil")
+                    ? "bg-blue-600 text-white"
+                    : "hover:bg-gray-200"
+                }`}
               >
                 <span className="flex items-center gap-2">
                   <IconLineChart size={18} /> Prediksi Permintaan
                 </span>
                 <svg
-                  className={`w-4 h-4 transition-transform ${showPredictionDropdown ? 'rotate-90' : ''}`}
+                  className={`w-4 h-4 transition-transform ${
+                    showPredictionDropdown ? "rotate-90" : ""
+                  }`}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5l7 7-7 7"
+                  />
                 </svg>
               </button>
               {showPredictionDropdown && (
-                <div className={`ml-4 mt-2 flex flex-col gap-2 text-sm transition-all duration-300 ease-in-out ${currentPath.startsWith('/prediksi') || currentPath.startsWith('/hasil') ? 'text-white' : 'text-blue-800'}`}>
+                <div
+                  className={`ml-4 mt-2 flex flex-col gap-2 text-sm transition-all duration-300 ease-in-out ${
+                    currentPath.startsWith("/prediksi") ||
+                    currentPath.startsWith("/hasil")
+                      ? "text-white"
+                      : "text-blue-800"
+                  }`}
+                >
                   <button
-                    onClick={() => navigate('/prediksi')}
-                    className={`flex items-center gap-2 px-3 py-2 rounded ${currentPath === '/prediksi' ? 'bg-blue-700' : 'hover:bg-gray-300'}`}
+                    onClick={() => navigate("/prediksi")}
+                    className={`flex items-center gap-2 px-3 py-2 rounded ${
+                      currentPath === "/prediksi"
+                        ? "bg-blue-700"
+                        : "hover:bg-gray-300"
+                    }`}
                   >
                     <Brain size={16} /> Lakukan Prediksi
                   </button>
                   <button
-                    onClick={() => navigate('/hasil')}
-                    className={`flex items-center gap-2 px-3 py-2 rounded ${currentPath === '/hasil' ? 'bg-blue-700' : 'hover:bg-gray-300'}`}
+                    onClick={() => navigate("/hasil")}
+                    className={`flex items-center gap-2 px-3 py-2 rounded ${
+                      currentPath === "/hasil"
+                        ? "bg-blue-700"
+                        : "hover:bg-gray-300"
+                    }`}
                   >
                     <PieChart size={16} /> Hasil Prediksi
                   </button>
@@ -293,15 +383,23 @@ export default function Dashboard() {
               <div className="flex items-center gap-3 text-blue-600 font-semibold">
                 <Package size={18} /> Jumlah Barang
               </div>
-              <p className="text-3xl font-bold mt-2 text-blue-700">{summaryData.totalBarang}</p>
-              <p className="text-sm text-gray-500">Total jenis barang yang tersedia</p>
+              <p className="text-3xl font-bold mt-2 text-blue-700">
+                {summaryData.totalBarang}
+              </p>
+              <p className="text-sm text-gray-500">
+                Total jenis barang yang tersedia
+              </p>
             </div>
             <div className="bg-white p-4 rounded-lg shadow border-l-4 border-green-500">
               <div className="flex items-center gap-3 text-green-600 font-semibold">
                 <ShoppingCart /> Total Penjualan
               </div>
-              <p className="text-3xl font-bold mt-2 text-green-700">{summaryData.totalPenjualan}</p>
-              <p className="text-sm text-gray-500">Total barang yang terjual dari semua transaksi</p>
+              <p className="text-3xl font-bold mt-2 text-green-700">
+                {summaryData.totalPenjualan}
+              </p>
+              <p className="text-sm text-gray-500">
+                Total barang yang terjual dari semua transaksi
+              </p>
             </div>
           </div>
 
@@ -317,7 +415,7 @@ export default function Dashboard() {
                 className="border border-gray-300 rounded px-3 py-2 text-sm"
               >
                 <option value="ALL">Semua Barang</option>
-                {barangList.map(b => (
+                {barangList.map((b) => (
                   <option key={b.kode} value={b.kode}>
                     {b.nama}
                   </option>
@@ -329,9 +427,22 @@ export default function Dashboard() {
               <LineChart data={dataTrend}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="bulan" />
-                <YAxis label={{ value: 'Jumlah Terjual', angle: -90, position: 'insideLeft' }} />
-                <Tooltip formatter={(value) => [`${value} Barang`, 'Total Penjualan']} />
-                <Line type="monotone" dataKey="penjualan" stroke="#3b82f6" strokeWidth={2} />
+                <YAxis
+                  label={{
+                    value: "Jumlah Terjual",
+                    angle: -90,
+                    position: "insideLeft",
+                  }}
+                />
+                <Tooltip
+                  formatter={(value) => [`${value} Barang`, "Total Penjualan"]}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="penjualan"
+                  stroke="#3b82f6"
+                  strokeWidth={2}
+                />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -372,7 +483,9 @@ export default function Dashboard() {
                 >
                   <option value="ALL">Semua Tahun</option>
                   {availableYears.map((y) => (
-                    <option key={y} value={y}>{y}</option>
+                    <option key={y} value={y}>
+                      {y}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -393,16 +506,24 @@ export default function Dashboard() {
                   tick={{ fontSize: 12 }}
                 />
                 <YAxis
-                  label={{ value: 'Total Terjual', angle: -90, position: 'insideLeft', style: { fontSize: 12 } }}
+                  label={{
+                    value: "Total Terjual",
+                    angle: -90,
+                    position: "insideLeft",
+                    style: { fontSize: 12 },
+                  }}
                 />
                 <Tooltip
-                  formatter={(v) => [`${v} Barang`, 'Total Terjual']}
-                  contentStyle={{ fontSize: '12px' }}
+                  formatter={(v) => [`${v} Barang`, "Total Terjual"]}
+                  contentStyle={{ fontSize: "12px" }}
                 />
                 <Legend />
                 <Bar dataKey="total" name="Jumlah Terjual">
                   {barData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={COLORS[index % COLORS.length]}
+                    />
                   ))}
                 </Bar>
               </BarChart>
