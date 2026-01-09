@@ -200,7 +200,7 @@ export default function DataBarang() {
 
     try {
       const response = await axios.post(
-        "https://akataraforecast.pythonanywhere.com/api/upload-barang",
+        `https://akataraforecast.pythonanywhere.com/api/upload-barang`,
         formData,
         {
           headers: {

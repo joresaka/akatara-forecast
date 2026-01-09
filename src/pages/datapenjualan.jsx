@@ -21,6 +21,7 @@ import logo from "../assets/logo.png";
 
 export default function DataPenjualan() {
   const [data, setData] = useState([]);
+  const [dataBarang, setDataBarang] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [startDate, setStartDate] = useState("");
@@ -60,6 +61,15 @@ export default function DataPenjualan() {
       showMessage("Gagal memuat data penjualan.");
     }
   };
+
+  useEffect(() => {
+    axios
+      .get("https://akataraforecast.pythonanywhere.com/api/barang")
+      .then((res) => setDataBarang(res.data))
+      .catch((err) => console.error(err));
+  }, []);
+
+  // console.log(dataBarang);
 
   useEffect(() => {
     fetchData();
@@ -124,13 +134,26 @@ export default function DataPenjualan() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const totalAngka = parseInt(form.total.replace(/[^0-9]/g, ""));
+
+    // cari barang berdasarkan kode
+    const barangTerpilih = dataBarang.find(
+      (item) => item.kode === form.kodeBarang
+    );
+
+    if (!barangTerpilih) {
+      alert("Barang tidak ditemukan");
+      return;
+    }
+
+    const harga = Number(barangTerpilih.harga);
+    const jumlah = Number(form.jumlah);
+    const totalAngka = harga * jumlah;
 
     const payload = {
       tanggal: form.tanggal,
       kodeBarang: form.kodeBarang,
-      namaBarang: form.namaBarang,
-      jumlah: parseInt(form.jumlah),
+      namaBarang: barangTerpilih.nama,
+      jumlah: jumlah,
       total: totalAngka,
     };
 
@@ -494,15 +517,38 @@ export default function DataPenjualan() {
                 required
                 className="w-full border px-3 py-2 rounded"
               />
-              <input
+              {/* <input
                 name="kodeBarang"
                 placeholder="Kode Barang"
                 value={form.kodeBarang}
                 onChange={handleInputChange}
                 required
                 className="w-full border px-3 py-2 rounded"
-              />
+              /> */}
+              <select
+                name="kodeBarang"
+                value={form.kodeBarang}
+                onChange={handleInputChange}
+                required
+                className="w-full border px-3 py-2 rounded"
+              >
+                <option value="">-- Pilih Barang --</option>
+                {dataBarang.map((item) => (
+                  <option key={item.kode} value={item.kode}>
+                    {item.kode} - {item.nama}
+                  </option>
+                ))}
+              </select>
               <input
+                name="jumlah"
+                type="number"
+                placeholder="Jumlah"
+                value={form.jumlah}
+                onChange={handleInputChange}
+                required
+                className="w-full border px-3 py-2 rounded"
+              />
+              {/* <input
                 name="namaBarang"
                 placeholder="Nama Barang"
                 value={form.namaBarang}
@@ -518,15 +564,15 @@ export default function DataPenjualan() {
                 onChange={handleInputChange}
                 required
                 className="w-full border px-3 py-2 rounded"
-              />
-              <input
+              /> */}
+              {/* <input
                 name="total"
                 placeholder="Total (Rp)"
                 value={form.total}
                 onChange={handleInputChange}
                 required
                 className="w-full border px-3 py-2 rounded"
-              />
+              /> */}
               <div className="flex justify-end gap-2">
                 <button
                   type="button"

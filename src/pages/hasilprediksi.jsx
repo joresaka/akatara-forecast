@@ -551,7 +551,7 @@ export default function HasilPrediksi() {
           {/* Tabel Error */}
           <div className="bg-white p-6 rounded-lg shadow-md">
             <h3 className="text-xl font-bold mb-4 text-gray-700">
-              Perhitungan Error
+              Tabel Perhitungan
             </h3>
             <div className="overflow-auto">
               <table className="min-w-full text-sm text-gray-700 border border-collapse">
