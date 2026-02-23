@@ -44,7 +44,7 @@ export default function LakukanPrediksi() {
   const fetchBarangList = async () => {
     try {
       const res = await axios.get(
-        "https://akataraforecast.pythonanywhere.com/api/barang"
+        "https://akataraforecast.pythonanywhere.com/api/barang",
       );
       // Format data untuk react-select
       const formattedBarang = res.data.map((barang) => ({
@@ -92,7 +92,7 @@ export default function LakukanPrediksi() {
 
       const res = await axios.post(
         "https://akataraforecast.pythonanywhere.com/api/predict",
-        requestData
+        requestData,
       );
 
       navigate("/hasil", { state: { predictionResult: res.data } });
@@ -102,7 +102,7 @@ export default function LakukanPrediksi() {
         showMessage(`Gagal melakukan prediksi: ${error.response.data.error}`);
       } else {
         showMessage(
-          "Gagal melakukan prediksi. Cek kembali data dan parameter."
+          "Gagal melakukan prediksi. Cek kembali data dan parameter.",
         );
       }
     } finally {
@@ -303,7 +303,7 @@ export default function LakukanPrediksi() {
                     />
                     <span className="ml-2">Otomatis (Optimal)</span>
                   </label>
-                  <label className="flex items-center">
+                  {/* <label className="flex items-center">
                     <input
                       type="radio"
                       name="predictionMode"
@@ -312,8 +312,8 @@ export default function LakukanPrediksi() {
                       onChange={() => setPredictionMode("manual")}
                       className="form-radio text-blue-600"
                     />
-                    <span className="ml-2">Manual</span>
-                  </label>
+                    <span className="ml-2">Manual</span>  
+                  </label> */}
                 </div>
               </div>
 
